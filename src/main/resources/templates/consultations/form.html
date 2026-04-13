@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulaire Consultation</title>
+</head>
+<body>
+    <h1 th:text="${consultation.id == 0} ? 'Ajouter une consultation' : 'Modifier une consultation'"></h1>
+
+    <form th:action="${consultation.id == 0} ? @{/consultations} : @{/consultations/update}"
+          th:object="${consultation}" method="post">
+
+        <input type="hidden" th:field="*{id}" />
+
+        <div>
+            <label for="date">Date :</label>
+            <input type="datetime-local" id="date" th:field="*{date}" required />
+        </div>
+        <div>
+            <label for="description">Description :</label>
+            <textarea id="description" th:field="*{description}" rows="4" cols="50"></textarea>
+        </div>
+        <div>
+            <label for="patient">Patient :</label>
+            <select id="patient" th:field="*{patient.id}" required>
+                <option value="">-- Choisir un patient --</option>
+                <option th:each="p : ${patients}" th:value="${p.id}"
+                        th:text="${p.nom} + ' ' + ${p.prenom}"></option>
+            </select>
+        </div>
+
+        <br/>
+        <button type="submit">Enregistrer</button>
+        <a th:href="@{/consultations}">Annuler</a>
+    </form>
+</body>
+</html>
+

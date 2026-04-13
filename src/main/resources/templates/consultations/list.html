@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Liste des consultations</title>
+</head>
+<body>
+    <h1>Liste des consultations</h1>
+    <a th:href="@{/consultations/new}">Ajouter une consultation</a>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Patient</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="consultation : ${consultations}">
+                <td th:text="${consultation.id}"></td>
+                <td th:text="${consultation.date}"></td>
+                <td th:text="${consultation.description}"></td>
+                <td th:text="${consultation.patient != null} ? ${consultation.patient.nom} + ' ' + ${consultation.patient.prenom} : ''"></td>
+                <td>
+                    <a th:href="@{/consultations/edit/{id}(id=${consultation.id})}">Modifier</a>
+                    <a th:href="@{/consultations/delete/{id}(id=${consultation.id})}"
+                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette consultation ?')">Supprimer</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
+
