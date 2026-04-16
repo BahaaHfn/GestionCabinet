@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head th:replace="~{fragments/layout :: head('Dashboard — GestionCabinet')}">
+    <title></title>
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div th:replace="~{fragments/layout :: sidebar(${currentPage})}"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <main class="main-content" style="margin-top:56px;">
+        <div class="page-header d-flex align-items-center justify-content-between">
+            <h2><i class="fa-solid fa-chart-line me-2"></i>Dashboard</h2>
+        </div>
+        <div class="row g-4 mb-4">
+            <div class="col-md-6">
+                <div class="card stat-card">
+                    <div class="card-body d-flex align-items-center gap-4">
+                        <div class="stat-icon bg-patients">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <div>
+                            <div class="stat-number" th:text="${totalPatients}">0</div>
+                            <div class="stat-label">Patients</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card stat-card">
+                    <div class="card-body d-flex align-items-center gap-4">
+                        <div class="stat-icon bg-consultations">
+                            <i class="fa-solid fa-stethoscope"></i>
+                        </div>
+                        <div>
+                            <div class="stat-number" th:text="${totalConsultations}">0</div>
+                            <div class="stat-label">Consultations</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-container">
+            <h5 class="mb-3"><i class="fa-solid fa-clock-rotate-left me-2"></i>Dernières consultations</h5>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Patient</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="c : ${recentConsultations}">
+                            <td th:text="${#temporals.format(c.date, 'dd/MM/yyyy HH:mm')}"></td>
+                            <td>
+                                <span th:if="${c.patient != null}" th:text="${c.patient.nom + ' ' + c.patient.prenom}"></span>
+                                <span th:if="${c.patient == null}" class="text-muted">—</span>
+                            </td>
+                            <td th:text="${c.description}"></td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(recentConsultations)}">
+                            <td colspan="3" class="text-center text-muted py-4">Aucune consultation récente</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>
+

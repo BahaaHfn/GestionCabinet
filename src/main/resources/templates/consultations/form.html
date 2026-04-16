@@ -1,38 +1,61 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Formulaire Consultation</title>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head th:replace="~{fragments/layout :: head('Formulaire Consultation — GestionCabinet')}">
+    <title></title>
 </head>
 <body>
-    <h1 th:text="${consultation.id == 0} ? 'Ajouter une consultation' : 'Modifier une consultation'"></h1>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div th:replace="~{fragments/layout :: sidebar(${currentPage})}"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <form th:action="${consultation.id == 0} ? @{/consultations} : @{/consultations/update}"
-          th:object="${consultation}" method="post">
-
-        <input type="hidden" th:field="*{id}" />
-
-        <div>
-            <label for="date">Date :</label>
-            <input type="datetime-local" id="date" th:field="*{date}" required />
-        </div>
-        <div>
-            <label for="description">Description :</label>
-            <textarea id="description" th:field="*{description}" rows="4" cols="50"></textarea>
-        </div>
-        <div>
-            <label for="patient">Patient :</label>
-            <select id="patient" th:field="*{patient.id}" required>
-                <option value="">-- Choisir un patient --</option>
-                <option th:each="p : ${patients}" th:value="${p.id}"
-                        th:text="${p.nom} + ' ' + ${p.prenom}"></option>
-            </select>
+    <main class="main-content" style="margin-top:56px;">
+        <div class="page-header">
+            <h2>
+                <i class="fa-solid fa-calendar-plus me-2" th:if="${consultation.id == 0}"></i>
+                <i class="fa-solid fa-calendar-pen me-2" th:if="${consultation.id != 0}"></i>
+                <span th:text="${consultation.id == 0} ? 'Nouvelle consultation' : 'Modifier la consultation'"></span>
+            </h2>
         </div>
 
-        <br/>
-        <button type="submit">Enregistrer</button>
-        <a th:href="@{/consultations}">Annuler</a>
-    </form>
+        <div class="form-container" style="max-width:700px;">
+            <form th:action="${consultation.id == 0} ? '/consultations' : '/consultations/update'"
+                  th:object="${consultation}" method="post">
+
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="datetime-local" class="form-control" id="date" th:field="*{date}" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="patient" class="form-label">Patient</label>
+                        <select class="form-select" id="patient" name="patient.id" required>
+                            <option value="">-- Choisir un patient --</option>
+                            <option th:each="p : ${patients}" th:value="${p.id}"
+                                    th:selected="${consultation.patient != null and consultation.patient.id == p.id}"
+                                    th:text="${p.nom + ' ' + p.prenom}"></option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" th:field="*{description}" rows="4"></textarea>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-check me-1"></i> Enregistrer
+                    </button>
+                    <a th:href="@{/consultations}" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-xmark me-1"></i> Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
 </body>
 </html>
-

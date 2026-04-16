@@ -1,6 +1,7 @@
 package com.bahaahfn.gestioncabinet.controller;
 
 import com.bahaahfn.gestioncabinet.Entity.Consultation;
+import com.bahaahfn.gestioncabinet.Entity.Patient;
 import com.bahaahfn.gestioncabinet.Service.ConsultationService;
 import com.bahaahfn.gestioncabinet.Service.PatientService;
 import org.springframework.stereotype.Controller;
@@ -22,13 +23,17 @@ public class ConsultationController {
     @GetMapping
     public String listConsultations(Model model) {
         model.addAttribute("consultations", consultationService.getAllConsultations());
+        model.addAttribute("currentPage", "consultations");
         return "consultations/list";
     }
 
     @GetMapping("/new")
     public String showCreateForm(Model model) {
-        model.addAttribute("consultation", new Consultation());
+        Consultation consultation = new Consultation();
+        consultation.setPatient(new Patient());
+        model.addAttribute("consultation", consultation);
         model.addAttribute("patients", patientService.findAllPatients());
+        model.addAttribute("currentPage", "consultations");
         return "consultations/form";
     }
 
@@ -46,6 +51,7 @@ public class ConsultationController {
         }
         model.addAttribute("consultation", consultation);
         model.addAttribute("patients", patientService.findAllPatients());
+        model.addAttribute("currentPage", "consultations");
         return "consultations/form";
     }
 

@@ -10,6 +10,8 @@ public interface ConsultationService {
     void delete(long id);
     void update(Consultation consultation);
     void deleteAll();
-    Consultation findConsultationByPatientId(long id);
+    List<Consultation> findConsultationsByPatientId(long id);
     List<Consultation> getAllConsultations();
+    long countConsultations();
+    List<Consultation> getRecentConsultations();
 }

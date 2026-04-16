@@ -12,7 +12,7 @@ public class Consultation {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private LocalDateTime date;
-    private String Description;
+    private String description;
     @ManyToOne
     private Patient patient;
 }

@@ -1,36 +1,63 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Liste des consultations</title>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head th:replace="~{fragments/layout :: head('Consultations — GestionCabinet')}">
+    <title></title>
 </head>
 <body>
-    <h1>Liste des consultations</h1>
-    <a th:href="@{/consultations/new}">Ajouter une consultation</a>
-    <table border="1">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Date</th>
-                <th>Description</th>
-                <th>Patient</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="consultation : ${consultations}">
-                <td th:text="${consultation.id}"></td>
-                <td th:text="${consultation.date}"></td>
-                <td th:text="${consultation.description}"></td>
-                <td th:text="${consultation.patient != null} ? ${consultation.patient.nom} + ' ' + ${consultation.patient.prenom} : ''"></td>
-                <td>
-                    <a th:href="@{/consultations/edit/{id}(id=${consultation.id})}">Modifier</a>
-                    <a th:href="@{/consultations/delete/{id}(id=${consultation.id})}"
-                       onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette consultation ?')">Supprimer</a>
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div th:replace="~{fragments/layout :: sidebar(${currentPage})}"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <main class="main-content" style="margin-top:56px;">
+        <!-- Page Header -->
+        <div class="page-header d-flex flex-wrap align-items-center justify-content-between gap-3">
+            <h2><i class="fa-solid fa-stethoscope me-2"></i>Consultations</h2>
+            <a th:href="@{/consultations/new}" class="btn btn-primary">
+                <i class="fa-solid fa-plus me-1"></i> Nouvelle consultation
+            </a>
+        </div>
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Patient</th>
+                            <th>Description</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="c : ${consultations}">
+                            <td th:text="${#temporals.format(c.date, 'dd/MM/yyyy HH:mm')}"></td>
+                            <td>
+                                <a th:if="${c.patient != null}"
+                                   th:href="@{/patients/{id}(id=${c.patient.id})}"
+                                   th:text="${c.patient.nom + ' ' + c.patient.prenom}"
+                                   class="text-decoration-none"></a>
+                                <span th:if="${c.patient == null}" class="text-muted">—</span>
+                            </td>
+                            <td th:text="${c.description}"></td>
+                            <td class="text-center">
+                                <a th:href="@{/consultations/edit/{id}(id=${c.id})}" class="btn btn-warning btn-action" title="Modifier">
+                                    <i class="fa-solid fa-pen text-white"></i>
+                                </a>
+                                <a th:href="@{/consultations/delete/{id}(id=${c.id})}" class="btn btn-danger btn-action"
+                                   title="Supprimer" onclick="return confirm('Supprimer cette consultation ?')">
+                                    <i class="fa-solid fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr th:if="${#lists.isEmpty(consultations)}">
+                            <td colspan="4" class="text-center text-muted py-4">Aucune consultation trouvée</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
 </body>
 </html>
-
