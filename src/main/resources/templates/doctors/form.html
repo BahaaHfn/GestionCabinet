@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
+<head th:replace="~{fragments/layout :: head('Formulaire Médecin — GestionCabinet')}">
+    <title></title>
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+    <div th:replace="~{fragments/layout :: sidebar(${currentPage})}"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <main class="main-content" style="margin-top:56px;">
+        <div class="page-header">
+            <h2>
+                <i class="fa-solid fa-user-plus me-2" th:if="${doctor.id == 0}"></i>
+                <i class="fa-solid fa-user-pen me-2" th:if="${doctor.id != 0}"></i>
+                <span th:text="${doctor.id == 0} ? 'Ajouter un médecin' : 'Modifier un médecin'"></span>
+            </h2>
+        </div>
+
+        <div class="form-container" style="max-width:700px;">
+            <form th:action="${doctor.id == 0} ? @{/doctors} : @{/doctors/update}"
+                  th:object="${doctor}" method="post">
+
+                <input type="hidden" th:field="*{id}" />
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="nom" class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="nom" th:field="*{nom}" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="prenom" class="form-label">Prénom</label>
+                        <input type="text" class="form-control" id="prenom" th:field="*{prenom}" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" th:field="*{email}" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="telephone" class="form-label">Téléphone</label>
+                        <input type="text" class="form-control" id="telephone" th:field="*{telephone}" />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="specialite" class="form-label">Spécialité</label>
+                        <input type="text" class="form-control" id="specialite" th:field="*{specialite}" required />
+                    </div>
+                    <div class="col-md-6">
+                        <label for="role" class="form-label">Rôle</label>
+                        <select class="form-select" id="role" th:field="*{role}">
+                            <option value="DOCTOR">Médecin</option>
+                            <option value="ADMIN">Administrateur</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="motDePasse" class="form-label">
+                            <span th:if="${doctor.id == 0}">Mot de passe</span>
+                            <span th:if="${doctor.id != 0}">Nouveau mot de passe (laisser vide pour garder l'ancien)</span>
+                        </label>
+                        <input type="password" class="form-control" id="motDePasse" th:field="*{motDePasse}"
+                               th:required="${doctor.id == 0}" />
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa-solid fa-check me-1"></i> Enregistrer
+                    </button>
+                    <a th:href="@{/doctors}" class="btn btn-outline-secondary">
+                        <i class="fa-solid fa-xmark me-1"></i> Annuler
+                    </a>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <div th:replace="~{fragments/layout :: scripts}"></div>
+</body>
+</html>
+
