@@ -1,69 +1,61 @@
 package com.bahaahfn.gestioncabinet.controller;
 
 import com.bahaahfn.gestioncabinet.Entity.Consultation;
-import com.bahaahfn.gestioncabinet.Entity.Patient;
 import com.bahaahfn.gestioncabinet.Service.ConsultationService;
-import com.bahaahfn.gestioncabinet.Service.PatientService;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/consultations")
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/consultations")
 public class ConsultationController {
 
     private final ConsultationService consultationService;
-    private final PatientService patientService;
 
-    public ConsultationController(ConsultationService consultationService, PatientService patientService) {
+    public ConsultationController(ConsultationService consultationService) {
         this.consultationService = consultationService;
-        this.patientService = patientService;
     }
 
     @GetMapping
-    public String listConsultations(Model model) {
-        model.addAttribute("consultations", consultationService.getAllConsultations());
-        model.addAttribute("currentPage", "consultations");
-        return "consultations/list";
+    public ResponseEntity<List<Consultation>> getAllConsultations() {
+        return ResponseEntity.ok(consultationService.getAllConsultations());
     }
 
-    @GetMapping("/new")
-    public String showCreateForm(Model model) {
-        Consultation consultation = new Consultation();
-        consultation.setPatient(new Patient());
-        model.addAttribute("consultation", consultation);
-        model.addAttribute("patients", patientService.findAllPatients());
-        model.addAttribute("currentPage", "consultations");
-        return "consultations/form";
+    @GetMapping("/{id}")
+    public ResponseEntity<Consultation> getConsultationDetail(@PathVariable long id) {
+        Consultation consultation = consultationService.findConsultationById(id);
+        if (consultation == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.ok(consultation);
+    }
+
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<List<Consultation>> getPatientConsultations(@PathVariable long patientId) {
+        return ResponseEntity.ok(consultationService.findConsultationsByPatientId(patientId));
     }
 
     @PostMapping
-    public String createConsultation(@ModelAttribute Consultation consultation) {
-        consultationService.save(consultation);
-        return "redirect:/consultations";
+    public ResponseEntity<Consultation> createConsultation(@RequestBody Consultation consultation) {
+        Consultation saved = consultationService.save(consultation);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable long id, Model model) {
-        Consultation consultation = consultationService.findConsultationById(id);
-        if (consultation == null) {
-            return "redirect:/consultations";
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateConsultation(@PathVariable long id, @RequestBody Consultation consultation) {
+        consultation.setIdConsultation(id);
+        Consultation updated = consultationService.update(consultation);
+        if (updated == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Consultation non trouvée");
         }
-        model.addAttribute("consultation", consultation);
-        model.addAttribute("patients", patientService.findAllPatients());
-        model.addAttribute("currentPage", "consultations");
-        return "consultations/form";
+        return ResponseEntity.ok(updated);
     }
 
-    @PostMapping("/update")
-    public String updateConsultation(@ModelAttribute Consultation consultation) {
-        consultationService.update(consultation);
-        return "redirect:/consultations";
-    }
-
-    @GetMapping("/delete/{id}")
-    public String deleteConsultation(@PathVariable long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteConsultation(@PathVariable long id) {
         consultationService.delete(id);
-        return "redirect:/consultations";
+        return ResponseEntity.noContent().build();
     }
 }

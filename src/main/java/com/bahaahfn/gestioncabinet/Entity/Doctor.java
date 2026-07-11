@@ -1,30 +1,54 @@
 package com.bahaahfn.gestioncabinet.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Entity @Data @AllArgsConstructor @NoArgsConstructor
+@Entity
+@Table(name = "doctors")
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Doctor {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    @Column(length = 30)
-    private String nom;
-    @Column(length = 30)
-    private String prenom;
-    @Column(unique = true, length = 100)
-    private String email;
-    @Column(length = 20)
-    private String telephone;
-    @Column(length = 100)
-    private String specialite;
-    private String motDePasse;
-    @Column(length = 20)
-    private String role; // ADMIN or DOCTOR
-    @OneToMany(mappedBy = "doctor")
-    private List<Consultation> consultations;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_doctor")
+    private Long idDoctor;
+    
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_user", nullable = false)
+    private User user;
+    
+    @Column(nullable = false, length = 100)
+    private String specialty;
+    
+    @Column(name = "license_number", unique = true, length = 50, nullable = false)
+    private String licenseNumber;
+    
+    @Column(name = "office_phone")
+    private String officePhone;
+    
+    @Column(name = "office_address")
+    private String officeAddress;
+    
+    @Column(name = "years_of_experience")
+    private Integer yearsOfExperience;
+    
+    @Builder.Default
+    @Column(name = "is_available")
+    private Boolean isAvailable = true;
+    
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Appointment> appointments;
+    
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<DoctorSchedule> schedules;
 }
-

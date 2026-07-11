@@ -4,12 +4,14 @@ import com.bahaahfn.gestioncabinet.Entity.Doctor;
 import com.bahaahfn.gestioncabinet.Service.DoctorService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
-@RequestMapping("/doctors")
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/doctors")
 public class DoctorController {
 
     private final DoctorService doctorService;
@@ -19,65 +21,47 @@ public class DoctorController {
     }
 
     @GetMapping
-    public String listDoctors(Model model,
-                              @RequestParam(defaultValue = "") String keyword,
-                              @RequestParam(defaultValue = "0") int page,
-                              @RequestParam(defaultValue = "5") int size) {
+    public ResponseEntity<Page<Doctor>> listDoctors(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
         Page<Doctor> doctorPage = doctorService.searchDoctors(keyword, PageRequest.of(page, size));
-        model.addAttribute("doctors", doctorPage.getContent());
-        model.addAttribute("totalPages", doctorPage.getTotalPages());
-        model.addAttribute("currentPageNum", page);
-        model.addAttribute("keyword", keyword);
-        model.addAttribute("size", size);
-        model.addAttribute("currentPage", "doctors");
-        return "doctors/list";
+        return ResponseEntity.ok(doctorPage);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Doctor>> getAllDoctors() {
+        return ResponseEntity.ok(doctorService.findAllDoctors());
     }
 
     @GetMapping("/{id}")
-    public String doctorDetail(@PathVariable long id, Model model) {
+    public ResponseEntity<Doctor> doctorDetail(@PathVariable long id) {
         Doctor doctor = doctorService.findDoctorById(id);
         if (doctor == null) {
-            return "redirect:/doctors";
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        model.addAttribute("doctor", doctor);
-        model.addAttribute("currentPage", "doctors");
-        return "doctors/detail";
-    }
-
-    @GetMapping("/new")
-    public String showCreateForm(Model model) {
-        model.addAttribute("doctor", new Doctor());
-        model.addAttribute("currentPage", "doctors");
-        return "doctors/form";
+        return ResponseEntity.ok(doctor);
     }
 
     @PostMapping
-    public String createDoctor(@ModelAttribute Doctor doctor) {
-        doctorService.save(doctor);
-        return "redirect:/doctors";
+    public ResponseEntity<Doctor> createDoctor(@RequestBody Doctor doctor) {
+        Doctor saved = doctorService.save(doctor);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
-    @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable long id, Model model) {
-        Doctor doctor = doctorService.findDoctorById(id);
-        if (doctor == null) {
-            return "redirect:/doctors";
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateDoctor(@PathVariable long id, @RequestBody Doctor doctor) {
+        doctor.setIdDoctor(id);
+        Doctor updated = doctorService.update(doctor);
+        if (updated == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Docteur non trouvé");
         }
-        model.addAttribute("doctor", doctor);
-        model.addAttribute("currentPage", "doctors");
-        return "doctors/form";
+        return ResponseEntity.ok(updated);
     }
 
-    @PostMapping("/update")
-    public String updateDoctor(@ModelAttribute Doctor doctor) {
-        doctorService.update(doctor);
-        return "redirect:/doctors";
-    }
-
-    @GetMapping("/delete/{id}")
-    public String deleteDoctor(@PathVariable long id) {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDoctor(@PathVariable long id) {
         doctorService.delete(id);
-        return "redirect:/doctors";
+        return ResponseEntity.noContent().build();
     }
 }
-

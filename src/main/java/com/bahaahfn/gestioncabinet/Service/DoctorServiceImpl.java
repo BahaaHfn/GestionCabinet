@@ -1,15 +1,19 @@
 package com.bahaahfn.gestioncabinet.Service;
 
 import com.bahaahfn.gestioncabinet.Entity.Doctor;
+import com.bahaahfn.gestioncabinet.Entity.User;
+import com.bahaahfn.gestioncabinet.Enum.AccountType;
 import com.bahaahfn.gestioncabinet.Repository.DoctorRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class DoctorServiceImpl implements DoctorService {
 
     private final DoctorRepository doctorRepository;
@@ -21,12 +25,17 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
-    public void save(Doctor doctor) {
-        doctor.setMotDePasse(passwordEncoder.encode(doctor.getMotDePasse()));
-        if (doctor.getRole() == null || doctor.getRole().isEmpty()) {
-            doctor.setRole("DOCTOR");
+    public Doctor save(Doctor doctor) {
+        if (doctor.getUser() != null) {
+            User user = doctor.getUser();
+            if (user.getPassword() != null) {
+                user.setPassword(passwordEncoder.encode(user.getPassword()));
+            }
+            if (user.getAccountType() == null) {
+                user.setAccountType(AccountType.DOCTOR);
+            }
         }
-        doctorRepository.save(doctor);
+        return doctorRepository.save(doctor);
     }
 
     @Override
@@ -40,21 +49,31 @@ public class DoctorServiceImpl implements DoctorService {
     }
 
     @Override
-    public void update(Doctor doctor) {
-        Doctor existing = doctorRepository.findById(doctor.getId()).orElse(null);
+    public Doctor update(Doctor doctor) {
+        Doctor existing = doctorRepository.findById(doctor.getIdDoctor()).orElse(null);
         if (existing != null) {
-            existing.setNom(doctor.getNom());
-            existing.setPrenom(doctor.getPrenom());
-            existing.setEmail(doctor.getEmail());
-            existing.setTelephone(doctor.getTelephone());
-            existing.setSpecialite(doctor.getSpecialite());
-            existing.setRole(doctor.getRole());
-            // Only update password if a new one is provided
-            if (doctor.getMotDePasse() != null && !doctor.getMotDePasse().isEmpty()) {
-                existing.setMotDePasse(passwordEncoder.encode(doctor.getMotDePasse()));
+            existing.setSpecialty(doctor.getSpecialty());
+            existing.setLicenseNumber(doctor.getLicenseNumber());
+            existing.setOfficePhone(doctor.getOfficePhone());
+            existing.setOfficeAddress(doctor.getOfficeAddress());
+            existing.setYearsOfExperience(doctor.getYearsOfExperience());
+            existing.setIsAvailable(doctor.getIsAvailable());
+            
+            if (doctor.getUser() != null && existing.getUser() != null) {
+                User existingUser = existing.getUser();
+                User updatedUser = doctor.getUser();
+                existingUser.setFirstName(updatedUser.getFirstName());
+                existingUser.setLastName(updatedUser.getLastName());
+                existingUser.setPhone(updatedUser.getPhone());
+                existingUser.setEmail(updatedUser.getEmail());
+                existingUser.setCin(updatedUser.getCin());
+                if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
+                    existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+                }
             }
-            doctorRepository.save(existing);
+            return doctorRepository.save(existing);
         }
+        return null;
     }
 
     @Override
@@ -64,7 +83,7 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public Page<Doctor> searchDoctors(String keyword, Pageable pageable) {
-        return doctorRepository.findByNomContainingIgnoreCaseOrPrenomContainingIgnoreCase(keyword, keyword, pageable);
+        return doctorRepository.findBySpecialtyContainingIgnoreCase(keyword, pageable);
     }
 
     @Override
@@ -74,7 +93,6 @@ public class DoctorServiceImpl implements DoctorService {
 
     @Override
     public Doctor findByEmail(String email) {
-        return doctorRepository.findByEmail(email).orElse(null);
+        return doctorRepository.findByUser_Email(email).orElse(null);
     }
 }
-

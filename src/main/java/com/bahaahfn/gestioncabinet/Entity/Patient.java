@@ -1,31 +1,58 @@
 package com.bahaahfn.gestioncabinet.Entity;
-import com.bahaahfn.gestioncabinet.Enum.Sexe;
+
+import com.bahaahfn.gestioncabinet.Enum.Gender;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
 
-@Data @AllArgsConstructor @NoArgsConstructor
 @Entity
+@Table(name = "patients")
+@Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Patient {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
-    @Column(length = 30)
-    private String nom;
-    @Column(length = 30)
-    private String prenom;
-    @Column(unique = true, length = 100)
-    private String email;
-    @Column(unique = true, length = 20)
-    private String telephone;
-    @Column(length = 150)
-    private String adresse;
-    private LocalDate dateNaissance;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id_patient")
+    private Long idPatient;
+    
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id_user", nullable = false)
+    private User user;
+    
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+    
     @Enumerated(EnumType.STRING)
-    private Sexe sexe;
-    @OneToMany(mappedBy = "patient")
-    private List<Consultation> consultation;
+    private Gender sex;
+    
+    @Column(name = "blood_type")
+    private String bloodType;
+    
+    @Column(columnDefinition = "TEXT")
+    private String allergies;
+    
+    @Column(name = "medical_conditions", columnDefinition = "TEXT")
+    private String medicalConditions;
+    
+    @Column(name = "insurance_number")
+    private String insuranceNumber;
+    
+    @Column(name = "emergency_contact")
+    private String emergencyContact;
+    
+    @OneToMany(mappedBy = "patient", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Appointment> appointments;
+    
+    @OneToOne(mappedBy = "patient", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private MedicalFile medicalFile;
 }
